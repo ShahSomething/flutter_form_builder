@@ -25,6 +25,37 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.text(errorTextField), findsOneWidget);
       });
+      testWidgets(
+        'Should persist custom error when autovalidateMode is onUserInteraction',
+        (tester) async {
+          final textFieldKey = GlobalKey<FormBuilderFieldState>();
+          const textFieldName = 'text';
+          const errorTextField = 'custom error';
+          final testWidget = FormBuilderTextField(
+            name: textFieldName,
+            key: textFieldKey,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+          );
+          await tester.pumpWidget(buildTestableFieldWidget(testWidget));
+
+          // Set custom error
+          textFieldKey.currentState?.invalidate(errorTextField);
+          await tester.pumpAndSettle();
+          expect(find.text(errorTextField), findsOneWidget);
+
+          // Simulate framework call (e.g. build again)
+          tester.binding.scheduleFrame();
+          await tester.pumpAndSettle();
+
+          // Should still be there
+          expect(find.text(errorTextField), findsOneWidget);
+
+          // Should clear when value changes
+          await tester.enterText(find.byType(TextField), 'test');
+          await tester.pumpAndSettle();
+          expect(find.text(errorTextField), findsNothing);
+        },
+      );
     });
 
     group('isValid -', () {
@@ -515,6 +546,39 @@ void main() {
           expect(focusNode?.hasFocus, false);
         },
       );
+    });
+    group('forceErrorText -', () {
+      testWidgets('Should show error when forceErrorText is set', (
+        tester,
+      ) async {
+        const errorText = 'Force error message';
+        final testWidget = FormBuilderTextField(
+          name: 'text',
+          forceErrorText: errorText,
+        );
+        await tester.pumpWidget(buildTestableFieldWidget(testWidget));
+        await tester.pumpAndSettle();
+
+        expect(find.text(errorText), findsOneWidget);
+      });
+
+      testWidgets('Should override validator error when forceErrorText is set', (
+        tester,
+      ) async {
+        const forceError = 'Force error';
+        const validatorError = 'Validator error';
+        final testWidget = FormBuilderTextField(
+          name: 'text',
+          forceErrorText: forceError,
+          validator: (value) => validatorError,
+          autovalidateMode: AutovalidateMode.always,
+        );
+        await tester.pumpWidget(buildTestableFieldWidget(testWidget));
+        await tester.pumpAndSettle();
+
+        expect(find.text(forceError), findsOneWidget);
+        expect(find.text(validatorError), findsNothing);
+      });
     });
   });
 }
