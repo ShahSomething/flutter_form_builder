@@ -52,6 +52,7 @@ class FormBuilderField<T> extends FormField<T> {
     required super.builder,
     super.errorBuilder,
     super.onReset,
+    super.forceErrorText,
     required this.name,
     this.valueTransformer,
     this.onChanged,
@@ -210,6 +211,9 @@ class FormBuilderFieldState<F extends FormBuilderField<T>, T>
   @override
   void didChange(T? value) {
     super.didChange(value);
+    if (_customErrorText != null) {
+      setState(() => _customErrorText = null);
+    }
     _informFormForFieldChange();
     widget.onChanged?.call(value);
   }
@@ -230,7 +234,7 @@ class FormBuilderFieldState<F extends FormBuilderField<T>, T>
   /// Validate field
   ///
   /// Clear custom error if [clearCustomError] is `true`.
-  /// By default `true`
+  /// By default `false`
   ///
   /// Focus when field is invalid if [focusOnInvalid] is `true`.
   /// By default `true`
@@ -244,7 +248,7 @@ class FormBuilderFieldState<F extends FormBuilderField<T>, T>
   /// not because [autoScrollWhenFocusOnInvalid] is `true`.
   @override
   bool validate({
-    bool clearCustomError = true,
+    bool clearCustomError = false,
     bool focusOnInvalid = true,
     bool autoScrollWhenFocusOnInvalid = false,
   }) {
