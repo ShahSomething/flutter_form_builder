@@ -562,23 +562,24 @@ void main() {
         expect(find.text(errorText), findsOneWidget);
       });
 
-      testWidgets('Should override validator error when forceErrorText is set', (
-        tester,
-      ) async {
-        const forceError = 'Force error';
-        const validatorError = 'Validator error';
-        final testWidget = FormBuilderTextField(
-          name: 'text',
-          forceErrorText: forceError,
-          validator: (value) => validatorError,
-          autovalidateMode: AutovalidateMode.always,
-        );
-        await tester.pumpWidget(buildTestableFieldWidget(testWidget));
-        await tester.pumpAndSettle();
+      testWidgets(
+        'Should override validator error when forceErrorText is set',
+        (tester) async {
+          const forceError = 'Force error';
+          const validatorError = 'Validator error';
+          final testWidget = FormBuilderTextField(
+            name: 'text',
+            forceErrorText: forceError,
+            validator: (value) => validatorError,
+            autovalidateMode: AutovalidateMode.always,
+          );
+          await tester.pumpWidget(buildTestableFieldWidget(testWidget));
+          await tester.pumpAndSettle();
 
-        expect(find.text(forceError), findsOneWidget);
-        expect(find.text(validatorError), findsNothing);
-      });
+          expect(find.text(forceError), findsOneWidget);
+          expect(find.text(validatorError), findsNothing);
+        },
+      );
     });
   });
 }

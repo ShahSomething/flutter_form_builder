@@ -66,7 +66,9 @@ void main() {
       expect(Focus.of(tester.element(widgetFinder)).hasFocus, true);
       expect(focusNode?.hasFocus, true);
     });
-    testWidgets('forceErrorText should show error', (WidgetTester tester) async {
+    testWidgets('forceErrorText should show error', (
+      WidgetTester tester,
+    ) async {
       const errorText = 'Force error message';
       const textFieldName = 'text1';
       final testWidget = FormBuilderTextField(
