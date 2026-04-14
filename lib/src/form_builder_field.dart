@@ -233,6 +233,11 @@ class FormBuilderFieldState<F extends FormBuilderField<T>, T>
 
   /// Validate field
   ///
+  /// **BREAKING CHANGE**:
+  /// In previous versions, calling `validate()` would automatically clear any custom errors set via `invalidate()`.
+  /// Now, `validate()` does not clear custom errors by default.
+  /// If you want to clear the custom error when validating, you must explicitly pass `clearCustomError: true`.
+  ///
   /// Clear custom error if [clearCustomError] is `true`.
   /// By default `false`
   ///
