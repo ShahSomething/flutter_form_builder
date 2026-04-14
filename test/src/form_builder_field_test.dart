@@ -58,6 +58,46 @@ void main() {
       );
     });
 
+    group('transformedValue -', () {
+      testWidgets('Should return raw value when valueTransformer is null', (
+        tester,
+      ) async {
+        final textFieldKey = GlobalKey<FormBuilderFieldState>();
+        const textFieldName = 'text';
+        final testWidget = FormBuilderTextField(
+          name: textFieldName,
+          key: textFieldKey,
+        );
+        await tester.pumpWidget(buildTestableFieldWidget(testWidget));
+
+        final widgetFinder = find.byWidget(testWidget);
+        await tester.enterText(widgetFinder, '123');
+        await tester.pumpAndSettle();
+
+        expect(textFieldKey.currentState?.transformedValue, '123');
+      });
+
+      testWidgets(
+        'Should return transformed value when valueTransformer is provided',
+        (tester) async {
+          final textFieldKey = GlobalKey<FormBuilderFieldState>();
+          const textFieldName = 'text';
+          final testWidget = FormBuilderTextField(
+            name: textFieldName,
+            key: textFieldKey,
+            valueTransformer: (text) => int.tryParse(text ?? ''),
+          );
+          await tester.pumpWidget(buildTestableFieldWidget(testWidget));
+
+          final widgetFinder = find.byWidget(testWidget);
+          await tester.enterText(widgetFinder, '123');
+          await tester.pumpAndSettle();
+
+          expect(textFieldKey.currentState?.transformedValue, 123);
+        },
+      );
+    });
+
     group('isValid -', () {
       testWidgets('Should invalid when set custom error', (tester) async {
         final textFieldKey = GlobalKey<FormBuilderFieldState>();
