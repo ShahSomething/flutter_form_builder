@@ -378,6 +378,7 @@ class FormBuilderTextField extends FormBuilderFieldDecoration<String> {
     super.onReset,
     super.focusNode,
     super.restorationId,
+    super.forceErrorText,
     String? initialValue,
     super.errorBuilder,
     this.readOnly = false,

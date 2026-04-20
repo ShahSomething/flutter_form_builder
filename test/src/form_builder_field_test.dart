@@ -25,6 +25,77 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.text(errorTextField), findsOneWidget);
       });
+      testWidgets(
+        'Should persist custom error when autovalidateMode is onUserInteraction',
+        (tester) async {
+          final textFieldKey = GlobalKey<FormBuilderFieldState>();
+          const textFieldName = 'text';
+          const errorTextField = 'custom error';
+          final testWidget = FormBuilderTextField(
+            name: textFieldName,
+            key: textFieldKey,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+          );
+          await tester.pumpWidget(buildTestableFieldWidget(testWidget));
+
+          // Set custom error
+          textFieldKey.currentState?.invalidate(errorTextField);
+          await tester.pumpAndSettle();
+          expect(find.text(errorTextField), findsOneWidget);
+
+          // Simulate framework call (e.g. build again)
+          tester.binding.scheduleFrame();
+          await tester.pumpAndSettle();
+
+          // Should still be there
+          expect(find.text(errorTextField), findsOneWidget);
+
+          // Should clear when value changes
+          await tester.enterText(find.byType(TextField), 'test');
+          await tester.pumpAndSettle();
+          expect(find.text(errorTextField), findsNothing);
+        },
+      );
+    });
+
+    group('transformedValue -', () {
+      testWidgets('Should return raw value when valueTransformer is null', (
+        tester,
+      ) async {
+        final textFieldKey = GlobalKey<FormBuilderFieldState>();
+        const textFieldName = 'text';
+        final testWidget = FormBuilderTextField(
+          name: textFieldName,
+          key: textFieldKey,
+        );
+        await tester.pumpWidget(buildTestableFieldWidget(testWidget));
+
+        final widgetFinder = find.byWidget(testWidget);
+        await tester.enterText(widgetFinder, '123');
+        await tester.pumpAndSettle();
+
+        expect(textFieldKey.currentState?.transformedValue, '123');
+      });
+
+      testWidgets(
+        'Should return transformed value when valueTransformer is provided',
+        (tester) async {
+          final textFieldKey = GlobalKey<FormBuilderFieldState>();
+          const textFieldName = 'text';
+          final testWidget = FormBuilderTextField(
+            name: textFieldName,
+            key: textFieldKey,
+            valueTransformer: (text) => int.tryParse(text ?? ''),
+          );
+          await tester.pumpWidget(buildTestableFieldWidget(testWidget));
+
+          final widgetFinder = find.byWidget(testWidget);
+          await tester.enterText(widgetFinder, '123');
+          await tester.pumpAndSettle();
+
+          expect(textFieldKey.currentState?.transformedValue, 123);
+        },
+      );
     });
 
     group('isValid -', () {
@@ -513,6 +584,40 @@ void main() {
 
           expect(Focus.of(tester.element(widgetFinder)).hasFocus, false);
           expect(focusNode?.hasFocus, false);
+        },
+      );
+    });
+    group('forceErrorText -', () {
+      testWidgets('Should show error when forceErrorText is set', (
+        tester,
+      ) async {
+        const errorText = 'Force error message';
+        final testWidget = FormBuilderTextField(
+          name: 'text',
+          forceErrorText: errorText,
+        );
+        await tester.pumpWidget(buildTestableFieldWidget(testWidget));
+        await tester.pumpAndSettle();
+
+        expect(find.text(errorText), findsOneWidget);
+      });
+
+      testWidgets(
+        'Should override validator error when forceErrorText is set',
+        (tester) async {
+          const forceError = 'Force error';
+          const validatorError = 'Validator error';
+          final testWidget = FormBuilderTextField(
+            name: 'text',
+            forceErrorText: forceError,
+            validator: (value) => validatorError,
+            autovalidateMode: AutovalidateMode.always,
+          );
+          await tester.pumpWidget(buildTestableFieldWidget(testWidget));
+          await tester.pumpAndSettle();
+
+          expect(find.text(forceError), findsOneWidget);
+          expect(find.text(validatorError), findsNothing);
         },
       );
     });

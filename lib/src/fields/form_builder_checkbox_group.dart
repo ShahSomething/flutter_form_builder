@@ -46,6 +46,7 @@ class FormBuilderCheckboxGroup<T> extends FormBuilderFieldDecoration<List<T>> {
     super.focusNode,
     super.restorationId,
     super.errorBuilder,
+    super.forceErrorText,
     required this.options,
     this.activeColor,
     this.checkColor,

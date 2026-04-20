@@ -353,6 +353,7 @@ class FormBuilderChoiceChips<T> extends FormBuilderFieldDecoration<T> {
     super.decoration,
     super.key,
     required super.name,
+    super.forceErrorText,
     required this.options,
     super.initialValue,
     super.restorationId,
